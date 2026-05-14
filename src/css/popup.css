@@ -1,0 +1,176 @@
+.osu-popup {
+  background: rgba(18, 18, 18, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-family: var(--font-family, "Spotify Mix", system-ui, sans-serif);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+  backdrop-filter: blur(10px);
+}
+
+.osu-popup.osu-fullscreen {
+  border-radius: 0;
+  border: none;
+  background: rgba(0, 0, 0, 0.92);
+}
+
+.osu-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: move;
+  flex: 0 0 auto;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.osu-popup.osu-fullscreen .osu-popup-header {
+  cursor: default;
+}
+
+.osu-popup-title {
+  font-weight: 700;
+  color: #1db954;
+}
+
+.osu-popup-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.osu-popup-actions button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osu-popup-actions button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.osu-popup-actions .osu-btn-active {
+  background: rgba(29, 185, 84, 0.25);
+  color: #1db954;
+}
+
+.osu-resize {
+  position: absolute;
+  z-index: 10;
+}
+.osu-resize-n { top: 0; left: 8px; right: 8px; height: 6px; }
+.osu-resize-s { bottom: 0; left: 8px; right: 8px; height: 6px; }
+.osu-resize-e { top: 8px; bottom: 8px; right: 0; width: 6px; }
+.osu-resize-w { top: 8px; bottom: 8px; left: 0; width: 6px; }
+.osu-resize-ne { top: 0; right: 0; width: 12px; height: 12px; }
+.osu-resize-nw { top: 0; left: 0; width: 12px; height: 12px; }
+.osu-resize-se { bottom: 0; right: 0; width: 14px; height: 14px; }
+.osu-resize-sw { bottom: 0; left: 0; width: 12px; height: 12px; }
+
+.osu-resizable {
+  outline: 2px dashed rgba(29, 185, 84, 0.8);
+  outline-offset: -2px;
+  box-shadow: 0 0 0 1px rgba(29, 185, 84, 0.3), 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+.osu-resizable .osu-resize {
+  background: rgba(29, 185, 84, 0.15);
+}
+.osu-resizable .osu-resize:hover {
+  background: rgba(29, 185, 84, 0.45);
+}
+.osu-resizable .osu-resize-se {
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(29, 185, 84, 0.9) 40%,
+    rgba(29, 185, 84, 0.9) 100%
+  );
+}
+
+.osu-popup-body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.osu-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.osu-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+.osu-hud-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.osu-hud-score {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.osu-hud-acc {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.osu-hud-combo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffd166;
+}
+
+.osu-hud-grade {
+  font-size: 22px;
+  font-weight: 800;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.osu-grade-S { color: #ffd166; }
+.osu-grade-A { color: #1db954; }
+.osu-grade-B { color: #4cc9f0; }
+.osu-grade-C { color: #f29e4c; }
+.osu-grade-D { color: #ff4d4d; }
+
+.osu-hud-mapinfo {
+  position: absolute;
+  bottom: 6px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  opacity: 0.7;
+  pointer-events: none;
+}
