@@ -51,7 +51,7 @@ async function openPiP(initW: number, initH: number): Promise<Window | null> {
       preferInitialWindowPlacement: false,
     });
   } catch (e) {
-    console.warn("[SpotifyOsu] PiP request failed", e);
+    console.warn("[Osutify] PiP request failed", e);
     return null;
   }
 }
@@ -59,7 +59,7 @@ async function openPiP(initW: number, initH: number): Promise<Window | null> {
 function openFallback(initW: number, initH: number): Window | null {
   return window.open(
     "about:blank",
-    "spotifyosu-popout",
+    "osutify-popout",
     `width=${initW},height=${initH},popup=yes,resizable=yes`,
   );
 }
@@ -76,13 +76,13 @@ export async function openPopoutWindow(): Promise<void> {
 
   const w = (await openPiP(initW, initH)) ?? openFallback(initW, initH);
   if (!w) {
-    console.warn("[SpotifyOsu] popout failed (PiP + window.open blocked)");
+    console.warn("[Osutify] popout failed (PiP + window.open blocked)");
     useStore.getState().setOpen(false);
     return;
   }
 
   try {
-    w.document.title = "SpotifyOsu";
+    w.document.title = "Osutify";
     w.document.body.className = "osu-popout-body";
 
     const style = w.document.createElement("style");
@@ -90,7 +90,7 @@ export async function openPopoutWindow(): Promise<void> {
     w.document.head.appendChild(style);
 
     const container = w.document.createElement("div");
-    container.id = "spotify-osu-popout-root";
+    container.id = "osutify-popout-root";
     w.document.body.appendChild(container);
 
     const root = (Spicetify as any).ReactDOM.createRoot(container);
@@ -124,7 +124,7 @@ export async function openPopoutWindow(): Promise<void> {
       },
     };
   } catch (e) {
-    console.error("[SpotifyOsu] popout setup failed", e);
+    console.error("[Osutify] popout setup failed", e);
     try {
       w.close();
     } catch {}

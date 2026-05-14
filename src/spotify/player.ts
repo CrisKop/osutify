@@ -45,7 +45,7 @@ async function fetchAnalysis(
     analysisCache.set(trackId, out);
     return out;
   } catch (e) {
-    console.warn("[SpotifyOsu] audio-analysis fetch failed", e);
+    console.warn("[Osutify] audio-analysis fetch failed", e);
   }
   try {
     const f = await Spicetify.CosmosAsync.get(
@@ -57,7 +57,7 @@ async function fetchAnalysis(
       return out;
     }
   } catch (e) {
-    console.warn("[SpotifyOsu] audio-features fallback failed", e);
+    console.warn("[Osutify] audio-features fallback failed", e);
   }
   return null;
 }

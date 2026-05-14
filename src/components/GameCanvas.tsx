@@ -12,11 +12,11 @@ export const GameCanvas: React.FC = () => {
 
   useEffect(() => {
     if (!canvasRef.current || !map) {
-      console.log("[SpotifyOsu] GameCanvas skip mount", { hasCanvas: !!canvasRef.current, hasMap: !!map });
+      console.log("[Osutify] GameCanvas skip mount", { hasCanvas: !!canvasRef.current, hasMap: !!map });
       return;
     }
     const canvas = canvasRef.current;
-    console.log("[SpotifyOsu] mounting engine with map", map.title, "notes:", map.notes.length);
+    console.log("[Osutify] mounting engine with map", map.title, "notes:", map.notes.length);
     resetScore();
 
     const engine = new GameEngine(canvas, map, {

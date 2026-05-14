@@ -21,7 +21,7 @@ export const Popup: React.FC = () => {
       }}
     >
       <div className="osu-popup-header">
-        <span className="osu-popup-title">SpotifyOsu</span>
+        <span className="osu-popup-title">Osutify</span>
         <div className="osu-popup-actions">
           <button type="button" title="Cerrar" onClick={() => setOpen(false)}>
             ✕

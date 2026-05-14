@@ -6,7 +6,7 @@ export async function selectMapForTrack(
   track: TrackInfo,
 ): Promise<MapData> {
   console.log(
-    "[SpotifyOsu] generating map bpm=",
+    "[Osutify] generating map bpm=",
     track.bpm,
     "duration=",
     track.durationMs,

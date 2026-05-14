@@ -21,7 +21,7 @@ async function waitForSpicetify(): Promise<void> {
 
 async function refreshMapForCurrentTrack(): Promise<void> {
   const track = await getCurrentTrackAsync();
-  console.log("[SpotifyOsu] refresh track", track);
+  console.log("[Osutify] refresh track", track);
   useStore.getState().setTrack(track);
   if (!track) {
     useStore.getState().setMap(null);
@@ -30,7 +30,7 @@ async function refreshMapForCurrentTrack(): Promise<void> {
   try {
     const map = await selectMapForTrack(track);
     console.log(
-      "[SpotifyOsu] map ready",
+      "[Osutify] map ready",
       map.title,
       "notes:",
       map.notes.length,
@@ -39,7 +39,7 @@ async function refreshMapForCurrentTrack(): Promise<void> {
     );
     useStore.getState().setMap(map);
   } catch (e) {
-    console.error("[SpotifyOsu] map load failed", e);
+    console.error("[Osutify] map load failed", e);
     useStore.getState().setMap(null);
   }
 }
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
   await waitForSpicetify();
 
   const button = new Spicetify.Playbar.Button(
-    "SpotifyOsu",
+    "Osutify",
     "gamepad",
     () => {
       useStore.getState().toggleOpen();
@@ -78,7 +78,7 @@ async function main(): Promise<void> {
 
   await refreshMapForCurrentTrack();
 
-  Spicetify.showNotification("SpotifyOsu ready");
+  Spicetify.showNotification("Osutify ready");
 }
 
 export default main;

@@ -51,7 +51,7 @@ const DEFAULT_SCORE: ScoreSnapshot = {
   processedNotes: 0,
 };
 
-const SIZE_KEY = "spotifyosu:popupSize";
+const SIZE_KEY = "osutify:popupSize";
 const MIN_W = 80;
 const MIN_H = 80;
 const DEFAULT_W = MIN_W;

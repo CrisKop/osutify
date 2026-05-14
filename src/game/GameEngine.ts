@@ -85,7 +85,7 @@ export class GameEngine {
     this.skipPastNotes();
     this.running = true;
     console.log(
-      "[SpotifyOsu] engine start notes=",
+      "[Osutify] engine start notes=",
       this.map.notes.length,
       "nextIdx=",
       this.nextIdx,
