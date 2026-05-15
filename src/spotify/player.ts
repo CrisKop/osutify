@@ -1,5 +1,10 @@
 const DEFAULT_BPM = 120;
 
+export interface LoudPeak {
+  time: number;
+  loudness: number;
+}
+
 export interface TrackInfo {
   uri: string;
   trackId: string;
@@ -8,6 +13,9 @@ export interface TrackInfo {
   bpm: number;
   durationMs: number;
   beats?: number[];
+  tatums?: number[];
+  bars?: number[];
+  peaks?: LoudPeak[];
 }
 
 function extractTrackId(uri: string): string {
@@ -18,9 +26,33 @@ function extractTrackId(uri: string): string {
 interface AnalysisCache {
   bpm: number;
   beats: number[];
+  tatums: number[];
+  bars: number[];
+  peaks: LoudPeak[];
 }
 
 const analysisCache = new Map<string, AnalysisCache>();
+
+function timesFrom(arr: any[]): number[] {
+  if (!Array.isArray(arr)) return [];
+  return arr
+    .map((b: any) => Math.round((b.start ?? 0) * 1000))
+    .filter((ms: number) => Number.isFinite(ms));
+}
+
+function extractPeaks(segments: any[]): LoudPeak[] {
+  if (!Array.isArray(segments) || segments.length === 0) return [];
+  const out: LoudPeak[] = [];
+  for (const s of segments) {
+    const t = Math.round((s.start ?? 0) * 1000);
+    const l = typeof s.loudness_max === "number" ? s.loudness_max : -60;
+    if (Number.isFinite(t)) out.push({ time: t, loudness: l });
+  }
+  if (out.length === 0) return out;
+  const vals = out.map((p) => p.loudness).sort((a, b) => a - b);
+  const cutoff = vals[Math.floor(vals.length * 0.55)];
+  return out.filter((p) => p.loudness >= cutoff);
+}
 
 async function fetchAnalysis(
   trackId: string,
@@ -31,17 +63,22 @@ async function fetchAnalysis(
     const res = await Spicetify.CosmosAsync.get(
       `https://api.spotify.com/v1/audio-analysis/${trackId}`,
     );
-    const beats: number[] = Array.isArray(res?.beats)
-      ? res.beats
-          .map((b: any) => Math.round((b.start ?? 0) * 1000))
-          .filter((ms: number) => Number.isFinite(ms))
-      : [];
+    const beats = timesFrom(res?.beats);
+    const tatums = timesFrom(res?.tatums);
+    const bars = timesFrom(res?.bars);
+    const peaks = extractPeaks(res?.segments);
     const bpm: number =
       typeof res?.track?.tempo === "number" && res.track.tempo > 0
         ? res.track.tempo
         : 0;
     if (beats.length === 0 && bpm === 0) return null;
-    const out = { bpm: bpm || DEFAULT_BPM, beats };
+    const out: AnalysisCache = {
+      bpm: bpm || DEFAULT_BPM,
+      beats,
+      tatums,
+      bars,
+      peaks,
+    };
     analysisCache.set(trackId, out);
     return out;
   } catch (e) {
@@ -52,7 +89,13 @@ async function fetchAnalysis(
       `https://api.spotify.com/v1/audio-features/${trackId}`,
     );
     if (typeof f?.tempo === "number" && f.tempo > 0) {
-      const out = { bpm: f.tempo, beats: [] as number[] };
+      const out: AnalysisCache = {
+        bpm: f.tempo,
+        beats: [],
+        tatums: [],
+        bars: [],
+        peaks: [],
+      };
       analysisCache.set(trackId, out);
       return out;
     }
@@ -97,6 +140,9 @@ export async function getCurrentTrackAsync(): Promise<TrackInfo | null> {
   if (analysis) {
     info.bpm = analysis.bpm;
     if (analysis.beats.length > 0) info.beats = analysis.beats;
+    if (analysis.tatums.length > 0) info.tatums = analysis.tatums;
+    if (analysis.bars.length > 0) info.bars = analysis.bars;
+    if (analysis.peaks.length > 0) info.peaks = analysis.peaks;
   }
   return info;
 }

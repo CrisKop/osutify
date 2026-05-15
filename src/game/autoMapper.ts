@@ -10,6 +10,8 @@ const HOLD_END_RATIO_MAX = 0.45;
 const DRAG_MIN_DIST = 0.18;
 const DRAG_MAX_DIST = 0.45;
 
+export type DifficultyLevel = "easy" | "normal" | "hard" | "expert";
+
 interface AutoMapOptions {
   trackId: string;
   title: string;
@@ -19,6 +21,10 @@ interface AutoMapOptions {
   startOffsetMs?: number;
   seed?: number;
   beats?: number[];
+  tatums?: number[];
+  bars?: number[];
+  peaks?: { time: number; loudness: number }[];
+  difficulty?: DifficultyLevel;
 }
 
 function mulberry32(seed: number): () => number {
@@ -59,29 +65,138 @@ function offsetPos(
 
 type Kind = "single" | "hold-static" | "hold-drag-2" | "hold-drag-3";
 
-function pickKind(rng: () => number, beatsLeft: number): Kind {
+interface KindWeights {
+  drag3: number;
+  drag2: number;
+  hold: number;
+}
+
+const KIND_WEIGHTS: Record<DifficultyLevel, KindWeights> = {
+  easy:   { drag3: 0.00, drag2: 0.06, hold: 0.50 },
+  normal: { drag3: 0.08, drag2: 0.22, hold: 0.40 },
+  hard:   { drag3: 0.12, drag2: 0.26, hold: 0.36 },
+  expert: { drag3: 0.16, drag2: 0.30, hold: 0.32 },
+};
+
+function pickKind(
+  rng: () => number,
+  beatsLeft: number,
+  w: KindWeights,
+): Kind {
   const r = rng();
-  if (beatsLeft >= 3 && r < 0.08) return "hold-drag-3";
-  if (beatsLeft >= 2 && r < 0.22) return "hold-drag-2";
-  if (r < 0.40) return "hold-static";
+  if (beatsLeft >= 3 && r < w.drag3) return "hold-drag-3";
+  if (beatsLeft >= 2 && r < w.drag3 + w.drag2) return "hold-drag-2";
+  if (r < w.drag3 + w.drag2 + w.hold) return "hold-static";
   return "single";
 }
 
-function buildBeatTimes(opts: AutoMapOptions): number[] {
-  if (opts.beats && opts.beats.length > 0) return opts.beats;
-  const beatMs = 60000 / opts.bpm;
-  const start = opts.startOffsetMs ?? 2000;
-  const end = opts.durationMs - 1000;
+function synthBeats(
+  bpm: number,
+  durationMs: number,
+  startOffsetMs: number,
+  divisor: number,
+): number[] {
+  const stepMs = (60000 / bpm) / divisor;
+  const end = durationMs - 1000;
   const out: number[] = [];
-  for (let t = start; t < end; t += beatMs) out.push(Math.round(t));
+  for (let t = startOffsetMs; t < end; t += stepMs) {
+    out.push(Math.round(t));
+  }
   return out;
+}
+
+function mergeSorted(
+  a: number[],
+  b: number[],
+  minGapMs: number,
+): number[] {
+  const merged = [...a, ...b].sort((x, y) => x - y);
+  const out: number[] = [];
+  for (const t of merged) {
+    if (out.length === 0 || t - out[out.length - 1] >= minGapMs) {
+      out.push(t);
+    }
+  }
+  return out;
+}
+
+function avgGap(arr: number[]): number {
+  if (arr.length < 2) return 500;
+  return (arr[arr.length - 1] - arr[0]) / (arr.length - 1);
+}
+
+function buildTimeline(opts: AutoMapOptions): {
+  times: number[];
+  reportedHalfTempo: boolean;
+} {
+  const difficulty = opts.difficulty ?? "normal";
+  const beats = opts.beats ?? [];
+  const tatums = opts.tatums ?? [];
+  const bars = opts.bars ?? [];
+  const peaks = (opts.peaks ?? []).map((p) => p.time);
+  const start = opts.startOffsetMs ?? 2000;
+  const dur = opts.durationMs || 180000;
+  const peakRate = peaks.length / (dur / 1000);
+  const beatGap = avgGap(beats);
+  const halfTempo = beats.length > 0 && beatGap > 380 && peakRate > 4;
+
+  switch (difficulty) {
+    case "easy": {
+      if (bars.length >= 4) return { times: bars, reportedHalfTempo: halfTempo };
+      if (beats.length > 0) {
+        return {
+          times: beats.filter((_, i) => i % 2 === 0),
+          reportedHalfTempo: halfTempo,
+        };
+      }
+      return {
+        times: synthBeats(opts.bpm, dur, start, 0.5),
+        reportedHalfTempo: false,
+      };
+    }
+    case "normal": {
+      if (beats.length > 0) return { times: beats, reportedHalfTempo: halfTempo };
+      return {
+        times: synthBeats(opts.bpm, dur, start, 1),
+        reportedHalfTempo: false,
+      };
+    }
+    case "hard": {
+      if (halfTempo && tatums.length > 0) {
+        return {
+          times: mergeSorted(tatums, peaks, 90),
+          reportedHalfTempo: true,
+        };
+      }
+      const base = beats.length > 0 ? beats : synthBeats(opts.bpm, dur, start, 1);
+      return {
+        times: mergeSorted(base, peaks, 120),
+        reportedHalfTempo: halfTempo,
+      };
+    }
+    case "expert": {
+      if (tatums.length > 0) {
+        return {
+          times: mergeSorted(tatums, peaks, 70),
+          reportedHalfTempo: halfTempo,
+        };
+      }
+      const base = beats.length > 0 ? beats : synthBeats(opts.bpm, dur, start, 2);
+      return {
+        times: mergeSorted(base, peaks, 80),
+        reportedHalfTempo: halfTempo,
+      };
+    }
+  }
 }
 
 export function generateAutoMap(opts: AutoMapOptions): MapData {
   const { trackId, title, artist, bpm, durationMs } = opts;
-  const seed = opts.seed ?? hashStr(trackId);
+  const difficulty = opts.difficulty ?? "normal";
+  const seed = opts.seed ?? hashStr(trackId + ":" + difficulty);
   const rng = mulberry32(seed);
-  const beatTimes = buildBeatTimes(opts);
+  const { times: beatTimes, reportedHalfTempo } = buildTimeline(opts);
+  const weights = KIND_WEIGHTS[difficulty];
   const notes: Note[] = [];
 
   let beatIdx = 0;
@@ -91,7 +206,7 @@ export function generateAutoMap(opts: AutoMapOptions): MapData {
     const beatsLeft = beatTimes.length - beatIdx;
     if (beatsLeft <= 0) break;
     const t = beatTimes[beatIdx];
-    const kind = pickKind(rng, beatsLeft);
+    const kind = pickKind(rng, beatsLeft, weights);
     const pos = randPos(rng);
 
     if (kind === "single") {
@@ -171,20 +286,31 @@ export function generateAutoMap(opts: AutoMapOptions): MapData {
     }
   }
 
-  const difficulty = computeDifficulty(notes, durationMs);
+  const difficultyScore = computeDifficulty(notes, durationMs);
+  const label = difficultyLabel(difficulty);
+  const suffix = reportedHalfTempo ? " (½-tempo fix)" : "";
 
   return {
     trackId,
-    title: `${title} (Auto)`,
+    title: `${title} (${label})${suffix}`,
     artist,
     songName: title,
     bpm,
-    difficulty,
-    difficultyName: difficultyName(difficulty),
+    difficulty: difficultyScore,
+    difficultyName: label,
     notes,
     isRated: false,
     source: "auto",
   };
+}
+
+function difficultyLabel(d: DifficultyLevel): string {
+  switch (d) {
+    case "easy": return "Easy";
+    case "normal": return "Normal";
+    case "hard": return "Hard";
+    case "expert": return "Expert";
+  }
 }
 
 function hashStr(s: string): number {

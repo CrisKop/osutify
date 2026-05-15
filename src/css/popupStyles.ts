@@ -58,6 +58,31 @@ export const POPUP_CSS = `
   background: rgba(240, 255, 188, 0.18);
   color: #f0ffbc;
 }
+.osu-popup-actions .osu-diff-btn {
+  width: auto;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  border: 1px solid rgba(190, 191, 171, 0.18);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.osu-popup-actions .osu-diff-btn:hover {
+  background: rgba(240, 255, 188, 0.12);
+}
+.osu-diff-easy { color: #bcfffc; border-color: rgba(188, 255, 252, 0.35) !important; }
+.osu-diff-easy:hover { background: rgba(188, 255, 252, 0.12) !important; }
+.osu-diff-normal { color: #f0ffbc; border-color: rgba(240, 255, 188, 0.35) !important; }
+.osu-diff-normal:hover { background: rgba(240, 255, 188, 0.12) !important; }
+.osu-diff-hard { color: #dbdd78; border-color: rgba(219, 221, 120, 0.45) !important; }
+.osu-diff-hard:hover { background: rgba(219, 221, 120, 0.15) !important; }
+.osu-diff-expert {
+  color: #ffb4a2;
+  border-color: rgba(255, 180, 162, 0.5) !important;
+  text-shadow: 0 0 6px rgba(255, 180, 162, 0.5);
+}
+.osu-diff-expert:hover { background: rgba(255, 180, 162, 0.15) !important; }
 .osu-resize { position: absolute; z-index: 10; }
 .osu-resize-n { top: 0; left: 8px; right: 8px; height: 6px; }
 .osu-resize-s { bottom: 0; left: 8px; right: 8px; height: 6px; }
@@ -138,6 +163,35 @@ export const POPUP_CSS = `
   color: rgba(190, 191, 171, 0.6);
   pointer-events: none;
   white-space: nowrap; overflow: hidden;
+}
+.osu-popup-titlebar {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+.osu-watermark {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  text-transform: none;
+  color: rgba(190, 191, 171, 0.55);
+  text-decoration: none;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+.osu-watermark:hover {
+  color: #f0ffbc;
+  text-shadow: 0 0 6px rgba(240, 255, 188, 0.5);
+}
+.osu-watermark-name {
+  color: rgba(240, 255, 188, 0.85);
+  font-weight: 700;
+}
+.osu-watermark:hover .osu-watermark-name {
+  color: #f0ffbc;
 }
 body.osu-popout-body {
   margin: 0; padding: 0; overflow: hidden;

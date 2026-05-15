@@ -65,6 +65,7 @@ export class GameEngine {
   private running = false;
   private disposed = false;
   private lastReportedScore = -1;
+  private lastReportedHits = -1;
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -119,6 +120,7 @@ export class GameEngine {
     this.feedback = [];
     this.active = null;
     this.lastReportedScore = -1;
+    this.lastReportedHits = -1;
     this.reportScore();
   }
 
@@ -156,7 +158,10 @@ export class GameEngine {
       perfNow,
     );
 
-    if (this.score.score !== this.lastReportedScore) {
+    if (
+      this.score.score !== this.lastReportedScore ||
+      this.score.hits !== this.lastReportedHits
+    ) {
       this.reportScore();
     }
 
@@ -451,6 +456,7 @@ export class GameEngine {
 
   private reportScore(): void {
     this.lastReportedScore = this.score.score;
+    this.lastReportedHits = this.score.hits;
     const acc = accuracy(this.score);
     this.cb.onScoreChange({
       score: this.score.score,

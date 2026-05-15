@@ -28,7 +28,8 @@ async function refreshMapForCurrentTrack(): Promise<void> {
     return;
   }
   try {
-    const map = await selectMapForTrack(track);
+    const difficulty = useStore.getState().difficulty;
+    const map = await selectMapForTrack(track, difficulty);
     console.log(
       "[Osutify] map ready",
       map.title,
@@ -41,6 +42,28 @@ async function refreshMapForCurrentTrack(): Promise<void> {
   } catch (e) {
     console.error("[Osutify] map load failed", e);
     useStore.getState().setMap(null);
+  }
+}
+
+async function regenerateMapKeepTrack(): Promise<void> {
+  const track = useStore.getState().track;
+  if (!track) {
+    await refreshMapForCurrentTrack();
+    return;
+  }
+  try {
+    const difficulty = useStore.getState().difficulty;
+    const map = await selectMapForTrack(track, difficulty);
+    console.log(
+      "[Osutify] map regenerated",
+      map.title,
+      "notes:",
+      map.notes.length,
+    );
+    useStore.getState().setMap(map);
+    useStore.getState().resetScore();
+  } catch (e) {
+    console.error("[Osutify] regen failed", e);
   }
 }
 
@@ -61,6 +84,7 @@ async function main(): Promise<void> {
   button.register();
 
   let lastOpen = useStore.getState().open;
+  let lastDifficulty = useStore.getState().difficulty;
   useStore.subscribe((s) => {
     button.active = s.open;
     if (s.open !== lastOpen) {
@@ -71,6 +95,10 @@ async function main(): Promise<void> {
       } else {
         closePopoutWindow();
       }
+    }
+    if (s.difficulty !== lastDifficulty) {
+      lastDifficulty = s.difficulty;
+      void regenerateMapKeepTrack();
     }
   });
 

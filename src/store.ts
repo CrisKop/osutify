@@ -3,6 +3,22 @@ import { Grade } from "./game/scoring";
 import { MapData } from "./game/types";
 import { TrackInfo } from "./spotify/player";
 
+export type DifficultyLevel = "easy" | "normal" | "hard" | "expert";
+
+export const DIFFICULTY_ORDER: DifficultyLevel[] = [
+  "easy",
+  "normal",
+  "hard",
+  "expert",
+];
+
+export const DIFFICULTY_LABEL: Record<DifficultyLevel, string> = {
+  easy: "Easy",
+  normal: "Normal",
+  hard: "Hard",
+  expert: "Expert",
+};
+
 export interface ScoreSnapshot {
   score: number;
   combo: number;
@@ -28,6 +44,7 @@ interface AppState {
   track: TrackInfo | null;
   map: MapData | null;
   score: ScoreSnapshot;
+  difficulty: DifficultyLevel;
   setOpen: (v: boolean) => void;
   toggleOpen: () => void;
   setPopupSize: (s: PopupSize) => void;
@@ -35,6 +52,8 @@ interface AppState {
   setMap: (m: MapData | null) => void;
   setScore: (s: ScoreSnapshot) => void;
   resetScore: () => void;
+  setDifficulty: (d: DifficultyLevel) => void;
+  cycleDifficulty: () => void;
 }
 
 const DEFAULT_SCORE: ScoreSnapshot = {
@@ -52,10 +71,27 @@ const DEFAULT_SCORE: ScoreSnapshot = {
 };
 
 const SIZE_KEY = "osutify:popupSize";
+const DIFFICULTY_KEY = "osutify:difficulty";
 const MIN_W = 80;
 const MIN_H = 80;
 const DEFAULT_W = MIN_W;
 const DEFAULT_H = MIN_H;
+
+function loadDifficulty(): DifficultyLevel {
+  try {
+    const raw = localStorage.getItem(DIFFICULTY_KEY);
+    if (raw && (DIFFICULTY_ORDER as string[]).includes(raw)) {
+      return raw as DifficultyLevel;
+    }
+  } catch {}
+  return "normal";
+}
+
+function saveDifficulty(d: DifficultyLevel): void {
+  try {
+    localStorage.setItem(DIFFICULTY_KEY, d);
+  } catch {}
+}
 
 function loadSize(): PopupSize {
   try {
@@ -77,12 +113,13 @@ function saveSize(s: PopupSize): void {
   } catch {}
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
   open: false,
   popupSize: loadSize(),
   track: null,
   map: null,
   score: DEFAULT_SCORE,
+  difficulty: loadDifficulty(),
   setOpen: (v) => set({ open: v }),
   toggleOpen: () => set((s) => ({ open: !s.open })),
   setPopupSize: (s) => {
@@ -97,6 +134,17 @@ export const useStore = create<AppState>((set) => ({
   setMap: (m) => set({ map: m }),
   setScore: (s) => set({ score: s }),
   resetScore: () => set({ score: DEFAULT_SCORE }),
+  setDifficulty: (d) => {
+    saveDifficulty(d);
+    set({ difficulty: d });
+  },
+  cycleDifficulty: () => {
+    const cur = get().difficulty;
+    const idx = DIFFICULTY_ORDER.indexOf(cur);
+    const next = DIFFICULTY_ORDER[(idx + 1) % DIFFICULTY_ORDER.length];
+    saveDifficulty(next);
+    set({ difficulty: next });
+  },
 }));
 
 export { MIN_W, MIN_H };
