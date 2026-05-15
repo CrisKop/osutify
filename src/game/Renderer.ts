@@ -25,12 +25,12 @@ export interface FeedbackFx {
 }
 
 const COLORS = {
-  single: "#1DB954",
-  holdStatic: "#FF7B00",
-  holdDrag: "#9D4EDD",
-  approach: "rgba(255,255,255,0.85)",
-  pathStroke: "rgba(157,78,221,0.42)",
-  staticOuter: "rgba(255,123,0,0.35)",
+  single: "#f0ffbc",
+  holdStatic: "#bcfffc",
+  holdDrag: "#dbdd78",
+  approach: "rgba(240,255,188,0.75)",
+  pathStroke: "rgba(188,255,252,0.45)",
+  staticOuter: "rgba(188,255,252,0.3)",
 };
 
 const FEEDBACK_LIFE_MS = 600;
@@ -107,8 +107,8 @@ export class Renderer {
         ctx.save();
         ctx.fillStyle =
           an.holdState === "broken" ? "#FF4D4D" : color;
-        ctx.shadowColor = "rgba(0,0,0,0.55)";
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = an.holdState === "broken" ? "rgba(255,77,77,0.5)" : (isDrag ? "rgba(219,221,120,0.45)" : "rgba(188,255,252,0.45)");
+        ctx.shadowBlur = 14;
         ctx.beginPath();
         ctx.arc(cx, cy, r * 0.95, 0, Math.PI * 2);
         ctx.fill();
@@ -119,7 +119,7 @@ export class Renderer {
           note.points[0].time;
         if (dur > 0 && an.holdProgress != null) {
           ctx.save();
-          ctx.strokeStyle = "#FFD166";
+          ctx.strokeStyle = "#dbdd78";
           ctx.lineWidth = 3;
           ctx.beginPath();
           ctx.arc(
@@ -135,8 +135,8 @@ export class Renderer {
       } else {
         ctx.save();
         ctx.fillStyle = color;
-        ctx.shadowColor = "rgba(0,0,0,0.55)";
-        ctx.shadowBlur = 8;
+        ctx.shadowColor = isDrag ? "rgba(219,221,120,0.5)" : "rgba(188,255,252,0.5)";
+        ctx.shadowBlur = 12;
         ctx.beginPath();
         ctx.arc(sx, sy, r, 0, Math.PI * 2);
         ctx.fill();
@@ -144,10 +144,43 @@ export class Renderer {
 
         if (!isDrag) {
           ctx.save();
-          ctx.strokeStyle = "rgba(255,255,255,0.55)";
-          ctx.lineWidth = 2;
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = 0.55;
+          ctx.lineWidth = Math.max(2, r * 0.18);
           ctx.beginPath();
-          ctx.arc(sx, sy, r * 0.55, 0, Math.PI * 2);
+          ctx.arc(sx, sy, r * 1.28, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.save();
+          ctx.fillStyle = "rgba(31,31,27,0.85)";
+          const bw = Math.max(2, r * 0.16);
+          const bh = r * 0.6;
+          const off = r * 0.28;
+          const rr = Math.min(bw / 2, 2);
+          this.roundRect(sx - off - bw / 2, sy - bh / 2, bw, bh, rr);
+          ctx.fill();
+          this.roundRect(sx + off - bw / 2, sy - bh / 2, bw, bh, rr);
+          ctx.fill();
+          ctx.restore();
+        } else {
+          const next = note.points[1];
+          const angle = Math.atan2(
+            next.y - note.points[0].y,
+            next.x - note.points[0].x,
+          );
+          ctx.save();
+          ctx.translate(sx, sy);
+          ctx.rotate(angle);
+          ctx.strokeStyle = "rgba(31,31,27,0.9)";
+          ctx.lineWidth = Math.max(2.5, r * 0.22);
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          const a = r * 0.5;
+          ctx.beginPath();
+          ctx.moveTo(-a * 0.55, -a * 0.6);
+          ctx.lineTo(a * 0.55, 0);
+          ctx.lineTo(-a * 0.55, a * 0.6);
           ctx.stroke();
           ctx.restore();
         }
@@ -170,11 +203,18 @@ export class Renderer {
     } else {
       const [px, py] = this.toPx(note.x, note.y);
       ctx.save();
-      ctx.shadowColor = "rgba(0,0,0,0.55)";
-      ctx.shadowBlur = 8;
+      ctx.shadowColor = "rgba(240,255,188,0.55)";
+      ctx.shadowBlur = 14;
       ctx.fillStyle = COLORS.single;
       ctx.beginPath();
       ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.fillStyle = "rgba(31,31,27,0.85)";
+      ctx.beginPath();
+      ctx.arc(px, py, r * 0.22, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
@@ -278,14 +318,36 @@ export class Renderer {
     ctx.restore();
   }
 
+  private roundRect(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number,
+  ): void {
+    const ctx = this.ctx;
+    const rr = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + rr, y);
+    ctx.lineTo(x + w - rr, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+    ctx.lineTo(x + w, y + h - rr);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+    ctx.lineTo(x + rr, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+    ctx.lineTo(x, y + rr);
+    ctx.quadraticCurveTo(x, y, x + rr, y);
+    ctx.closePath();
+  }
+
   private drawCursor(x: number, y: number): void {
     const [px, py] = this.toPx(x, y);
     const ctx = this.ctx;
     const r = Math.min(this.width, this.height) * 0.012;
     ctx.save();
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    ctx.shadowColor = "rgba(0,0,0,0.6)";
-    ctx.shadowBlur = 6;
+    ctx.fillStyle = "rgba(240,255,188,0.9)";
+    ctx.shadowColor = "rgba(240,255,188,0.6)";
+    ctx.shadowBlur = 8;
     ctx.beginPath();
     ctx.arc(px, py, r, 0, Math.PI * 2);
     ctx.fill();

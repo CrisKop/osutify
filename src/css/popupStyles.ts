@@ -1,28 +1,29 @@
 export const POPUP_CSS = `
 .osu-popup {
-  background: rgba(18, 18, 18, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(135deg, #1e2a31 0%, #1f1f1b 100%);
+  border: 1px solid rgba(190, 191, 171, 0.18);
   border-radius: 10px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(240, 255, 188, 0.04);
   color: #fff;
   font-family: var(--font-family, "Spotify Mix", system-ui, sans-serif);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   user-select: none;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 .osu-popup.osu-fullscreen, .osu-popup.osu-popout {
   border-radius: 0;
   border: none;
-  background: rgba(0, 0, 0, 0.92);
+  background: linear-gradient(135deg, #1e2a31 0%, #1f1f1b 100%);
 }
 .osu-popup-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 6px 10px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(65, 65, 65, 0.38);
+  border-bottom: 1px solid rgba(190, 191, 171, 0.1);
   cursor: move;
   flex: 0 0 auto;
   font-size: 12px;
@@ -33,11 +34,11 @@ export const POPUP_CSS = `
 .osu-popup.osu-popout .osu-popup-header {
   cursor: default;
 }
-.osu-popup-title { font-weight: 700; color: #1db954; }
+.osu-popup-title { font-weight: 700; color: #f0ffbc; }
 .osu-popup-actions { display: flex; gap: 4px; }
 .osu-popup-actions button {
   background: transparent;
-  color: #fff;
+  color: rgba(190, 191, 171, 0.8);
   border: none;
   width: 22px;
   height: 22px;
@@ -47,11 +48,15 @@ export const POPUP_CSS = `
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background 0.15s, color 0.15s;
 }
-.osu-popup-actions button:hover { background: rgba(255, 255, 255, 0.1); }
+.osu-popup-actions button:hover {
+  background: rgba(240, 255, 188, 0.1);
+  color: #f0ffbc;
+}
 .osu-popup-actions .osu-btn-active {
-  background: rgba(29, 185, 84, 0.25);
-  color: #1db954;
+  background: rgba(240, 255, 188, 0.18);
+  color: #f0ffbc;
 }
 .osu-resize { position: absolute; z-index: 10; }
 .osu-resize-n { top: 0; left: 8px; right: 8px; height: 6px; }
@@ -63,15 +68,15 @@ export const POPUP_CSS = `
 .osu-resize-se { bottom: 0; right: 0; width: 14px; height: 14px; }
 .osu-resize-sw { bottom: 0; left: 0; width: 12px; height: 12px; }
 .osu-resizable {
-  outline: 2px dashed rgba(29, 185, 84, 0.8);
+  outline: 2px dashed rgba(240, 255, 188, 0.7);
   outline-offset: -2px;
-  box-shadow: 0 0 0 1px rgba(29, 185, 84, 0.3), 0 10px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 0 1px rgba(240, 255, 188, 0.2), 0 10px 40px rgba(0, 0, 0, 0.7);
 }
-.osu-resizable .osu-resize { background: rgba(29, 185, 84, 0.15); }
-.osu-resizable .osu-resize:hover { background: rgba(29, 185, 84, 0.45); }
+.osu-resizable .osu-resize { background: rgba(240, 255, 188, 0.08); }
+.osu-resizable .osu-resize:hover { background: rgba(240, 255, 188, 0.25); }
 .osu-resizable .osu-resize-se {
   background: linear-gradient(135deg, transparent 0%, transparent 40%,
-    rgba(29, 185, 84, 0.9) 40%, rgba(29, 185, 84, 0.9) 100%);
+    rgba(240, 255, 188, 0.85) 40%, rgba(240, 255, 188, 0.85) 100%);
 }
 .osu-popup-body {
   position: relative;
@@ -91,31 +96,36 @@ export const POPUP_CSS = `
 }
 .osu-hud-row {
   display: flex; align-items: center; justify-content: space-between;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 .osu-hud-score {
   font-size: clamp(10px, 5cqw, 18px);
   font-weight: 700;
+  color: #f0ffbc;
+  text-shadow: 0 0 12px rgba(240, 255, 188, 0.4), 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 .osu-hud-acc {
   font-size: clamp(8px, 3.6cqw, 13px);
-  opacity: 0.85;
+  opacity: 0.75;
+  color: #bebfab;
 }
 .osu-hud-combo {
   font-size: clamp(12px, 6cqw, 22px);
   font-weight: 700;
-  color: #ffd166;
+  color: #dbdd78;
+  text-shadow: 0 0 10px rgba(219, 221, 120, 0.5), 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 .osu-hud-grade {
   font-size: clamp(12px, 6cqw, 22px);
   font-weight: 800;
   padding: 0 clamp(3px, 2cqw, 8px);
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(31, 31, 27, 0.6);
+  border: 1px solid rgba(190, 191, 171, 0.15);
 }
-.osu-grade-S { color: #ffd166; }
-.osu-grade-A { color: #1db954; }
-.osu-grade-B { color: #4cc9f0; }
+.osu-grade-S { color: #dbdd78; text-shadow: 0 0 10px rgba(219, 221, 120, 0.6); }
+.osu-grade-A { color: #f0ffbc; text-shadow: 0 0 10px rgba(240, 255, 188, 0.6); }
+.osu-grade-B { color: #bcfffc; text-shadow: 0 0 10px rgba(188, 255, 252, 0.6); }
 .osu-grade-C { color: #f29e4c; }
 .osu-grade-D { color: #ff4d4d; }
 .osu-hud-mapinfo {
@@ -125,11 +135,13 @@ export const POPUP_CSS = `
   right: clamp(4px, 2.5cqw, 10px);
   display: flex; justify-content: space-between;
   font-size: clamp(7px, 2.8cqw, 10px);
-  opacity: 0.7; pointer-events: none;
+  color: rgba(190, 191, 171, 0.6);
+  pointer-events: none;
   white-space: nowrap; overflow: hidden;
 }
 body.osu-popout-body {
-  margin: 0; padding: 0; overflow: hidden; background: #000;
+  margin: 0; padding: 0; overflow: hidden;
+  background: linear-gradient(135deg, #1e2a31 0%, #1f1f1b 100%);
   height: 100vh; width: 100vw;
 }
 `;

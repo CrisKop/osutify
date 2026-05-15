@@ -47,9 +47,11 @@ async function refreshMapForCurrentTrack(): Promise<void> {
 async function main(): Promise<void> {
   await waitForSpicetify();
 
+  const OSUTIFY_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3.25" y="0.5" width="1.5" height="5" rx="0.75" transform="rotate(-25 4 3)"/><rect x="7.25" y="0.5" width="1.5" height="5" rx="0.75"/><rect x="11.25" y="0.5" width="1.5" height="5" rx="0.75" transform="rotate(25 12 3)"/><path fill-rule="evenodd" d="M8 7.4a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6zm0 1.7a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2z"/></svg>`;
+
   const button = new Spicetify.Playbar.Button(
     "Osutify",
-    "gamepad",
+    OSUTIFY_ICON,
     () => {
       useStore.getState().toggleOpen();
     },
