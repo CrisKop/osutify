@@ -1,7 +1,8 @@
 import { useStore } from "./store";
-import { getCurrentTrackAsync, onSongChange } from "./spotify/player";
+import { getCurrentTrackAsync, onSongChange, TrackInfo } from "./spotify/player";
 import { selectMapForTrack } from "./maps/selector";
 import { openPopoutWindow, closePopoutWindow } from "./popout";
+import { extractColorsFromImage } from "./spotify/colorExtract";
 
 async function waitForSpicetify(): Promise<void> {
   while (
@@ -19,14 +20,47 @@ async function waitForSpicetify(): Promise<void> {
   }
 }
 
+async function refreshAlbumColors(track: TrackInfo): Promise<void> {
+  try {
+    const c: any = await Spicetify.colorExtractor(track.uri);
+    if (c && typeof c.VIBRANT === "string") {
+      console.log("[Osutify] colors via Spicetify API", c);
+      useStore.getState().setAlbumColors({
+        vibrant: c.VIBRANT ?? c.PROMINENT ?? "#f0ffbc",
+        darkVibrant: c.DARK_VIBRANT ?? "#1e2a31",
+        lightVibrant: c.LIGHT_VIBRANT ?? c.VIBRANT ?? "#bcfffc",
+        prominent: c.PROMINENT ?? c.VIBRANT ?? "#dbdd78",
+        desaturated: c.DESATURATED ?? "#bebfab",
+      });
+      return;
+    }
+  } catch (e) {
+    console.warn("[Osutify] colorExtractor API failed, fallback to canvas", e);
+  }
+
+  if (!track.imageUrl) {
+    console.warn("[Osutify] no album image URL — colors unavailable");
+    return;
+  }
+  const colors = await extractColorsFromImage(track.imageUrl);
+  if (colors) {
+    console.log("[Osutify] colors via canvas", colors);
+    useStore.getState().setAlbumColors(colors);
+  } else {
+    console.warn("[Osutify] canvas extract returned null");
+  }
+}
+
 async function refreshMapForCurrentTrack(): Promise<void> {
   const track = await getCurrentTrackAsync();
   console.log("[Osutify] refresh track", track);
   useStore.getState().setTrack(track);
   if (!track) {
     useStore.getState().setMap(null);
+    useStore.getState().setAlbumColors(null);
     return;
   }
+  void refreshAlbumColors(track);
   try {
     const difficulty = useStore.getState().difficulty;
     const map = await selectMapForTrack(track, difficulty);

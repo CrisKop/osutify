@@ -16,6 +16,58 @@ export const POPUP_CSS = `
   border-radius: 0;
   border: none;
   background: linear-gradient(135deg, #1e2a31 0%, #1f1f1b 100%);
+  position: relative;
+  overflow: hidden;
+}
+.osu-popup.osu-adaptive {
+  background:
+    radial-gradient(ellipse 100% 80% at 20% 15%, var(--ck-a1, #354a55) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 90% at 85% 85%, var(--ck-a3, #1e2a31) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 100% at 50% 110%, var(--ck-a4, #bcfffc) 0%, transparent 65%),
+    linear-gradient(160deg, var(--ck-a2, #1e2a31) 0%, #08080a 100%);
+  transition: background 0.8s ease;
+}
+.osu-popup.osu-adaptive::before {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background:
+    radial-gradient(circle 45% at 25% 30%, var(--ck-a1, transparent) 0%, transparent 60%),
+    radial-gradient(circle 40% at 75% 65%, var(--ck-a4, transparent) 0%, transparent 60%),
+    radial-gradient(circle 35% at 50% 90%, var(--ck-a3, transparent) 0%, transparent 60%);
+  opacity: 0.85;
+  filter: blur(45px) saturate(1.3);
+  animation: osu-mesh-shift 18s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.osu-popup.osu-adaptive::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 25%, rgba(8, 8, 10, 0.6) 95%);
+  pointer-events: none;
+  z-index: 0;
+}
+.osu-popup.osu-adaptive .osu-popup-header,
+.osu-popup.osu-adaptive .osu-popup-body {
+  position: relative;
+  z-index: 1;
+}
+.osu-popup.osu-adaptive .osu-popup-header {
+  background: rgba(31, 31, 27, 0.55);
+  backdrop-filter: blur(8px);
+}
+@keyframes osu-mesh-shift {
+  0%, 100% {
+    transform: translate(0%, 0%) scale(1) rotate(0deg);
+  }
+  33% {
+    transform: translate(6%, -4%) scale(1.12) rotate(8deg);
+  }
+  66% {
+    transform: translate(-5%, 6%) scale(1.08) rotate(-6deg);
+  }
 }
 .osu-popup-header {
   display: flex;
@@ -83,6 +135,31 @@ export const POPUP_CSS = `
   text-shadow: 0 0 6px rgba(255, 180, 162, 0.5);
 }
 .osu-diff-expert:hover { background: rgba(255, 180, 162, 0.15) !important; }
+.osu-popup-actions .osu-theme-btn {
+  width: auto;
+  padding: 0 6px;
+  gap: 3px;
+  border: 1px solid rgba(190, 191, 171, 0.18);
+}
+.osu-theme-btn .osu-theme-swatch {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  transition: filter 0.2s, transform 0.2s;
+}
+.osu-theme-btn.osu-theme-off .osu-theme-swatch {
+  filter: grayscale(1) brightness(0.7);
+}
+.osu-theme-btn:hover .osu-theme-swatch {
+  transform: scale(1.15);
+  filter: none;
+}
+.osu-theme-btn.osu-theme-on {
+  border-color: rgba(240, 255, 188, 0.35) !important;
+  background: rgba(240, 255, 188, 0.06);
+}
 .osu-resize { position: absolute; z-index: 10; }
 .osu-resize-n { top: 0; left: 8px; right: 8px; height: 6px; }
 .osu-resize-s { bottom: 0; left: 8px; right: 8px; height: 6px; }

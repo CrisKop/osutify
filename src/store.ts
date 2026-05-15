@@ -38,6 +38,14 @@ export interface PopupSize {
   h: number;
 }
 
+export interface AlbumColors {
+  vibrant: string;
+  darkVibrant: string;
+  lightVibrant: string;
+  prominent: string;
+  desaturated: string;
+}
+
 interface AppState {
   open: boolean;
   popupSize: PopupSize;
@@ -45,6 +53,8 @@ interface AppState {
   map: MapData | null;
   score: ScoreSnapshot;
   difficulty: DifficultyLevel;
+  adaptiveTheme: boolean;
+  albumColors: AlbumColors | null;
   setOpen: (v: boolean) => void;
   toggleOpen: () => void;
   setPopupSize: (s: PopupSize) => void;
@@ -54,6 +64,9 @@ interface AppState {
   resetScore: () => void;
   setDifficulty: (d: DifficultyLevel) => void;
   cycleDifficulty: () => void;
+  setAdaptiveTheme: (v: boolean) => void;
+  toggleAdaptiveTheme: () => void;
+  setAlbumColors: (c: AlbumColors | null) => void;
 }
 
 const DEFAULT_SCORE: ScoreSnapshot = {
@@ -90,6 +103,23 @@ function loadDifficulty(): DifficultyLevel {
 function saveDifficulty(d: DifficultyLevel): void {
   try {
     localStorage.setItem(DIFFICULTY_KEY, d);
+  } catch {}
+}
+
+const ADAPTIVE_KEY = "osutify:adaptiveTheme";
+
+function loadAdaptive(): boolean {
+  try {
+    const raw = localStorage.getItem(ADAPTIVE_KEY);
+    if (raw === "false") return false;
+    if (raw === "true") return true;
+  } catch {}
+  return true;
+}
+
+function saveAdaptive(v: boolean): void {
+  try {
+    localStorage.setItem(ADAPTIVE_KEY, v ? "true" : "false");
   } catch {}
 }
 
@@ -145,6 +175,18 @@ export const useStore = create<AppState>((set, get) => ({
     saveDifficulty(next);
     set({ difficulty: next });
   },
+  adaptiveTheme: loadAdaptive(),
+  albumColors: null,
+  setAdaptiveTheme: (v) => {
+    saveAdaptive(v);
+    set({ adaptiveTheme: v });
+  },
+  toggleAdaptiveTheme: () => {
+    const next = !get().adaptiveTheme;
+    saveAdaptive(next);
+    set({ adaptiveTheme: next });
+  },
+  setAlbumColors: (c) => set({ albumColors: c }),
 }));
 
 export { MIN_W, MIN_H };

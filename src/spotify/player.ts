@@ -12,6 +12,7 @@ export interface TrackInfo {
   artist: string;
   bpm: number;
   durationMs: number;
+  imageUrl?: string;
   beats?: number[];
   tatums?: number[];
   bars?: number[];
@@ -119,6 +120,13 @@ function readSync(): TrackInfo | null {
     (meta as any).artist ??
     "Unknown";
 
+  const imageUrl =
+    item.album?.images?.[0]?.url ??
+    (meta as any).image_xlarge_url ??
+    (meta as any).image_large_url ??
+    (meta as any).image_url ??
+    (meta as any).image_small_url;
+
   return {
     uri: item.uri,
     trackId: extractTrackId(item.uri),
@@ -126,6 +134,7 @@ function readSync(): TrackInfo | null {
     artist: artistName,
     bpm: Number.isFinite(tempo) && tempo > 0 ? tempo : DEFAULT_BPM,
     durationMs: item.duration?.milliseconds ?? 0,
+    imageUrl,
   };
 }
 
