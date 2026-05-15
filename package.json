@@ -1,6 +1,7 @@
 {
   "name": "osutify",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Rhythm-based osu!-style mini-game synced to Spotify playback. Adaptive theming, multiple difficulties, and always-on-top Picture-in-Picture window.",
   "private": true,
   "scripts": {
     "build": "spicetify-creator",
@@ -8,6 +9,26 @@
     "watch": "spicetify-creator --watch"
   },
   "license": "MIT",
+  "author": {
+    "name": "CrisKop",
+    "url": "https://criskop.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CrisKop/osutify"
+  },
+  "bugs": {
+    "url": "https://github.com/CrisKop/osutify/issues"
+  },
+  "homepage": "https://github.com/CrisKop/osutify",
+  "keywords": [
+    "spicetify",
+    "spicetify-extensions",
+    "spotify",
+    "game",
+    "rhythm",
+    "osu"
+  ],
   "devDependencies": {
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

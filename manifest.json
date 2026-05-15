@@ -1,0 +1,14 @@
+{
+  "name": "Osutify",
+  "description": "Rhythm-based osu!-style mini-game synced to your Spotify playback. Adaptive theming reacts to album art, with Easy/Normal/Hard/Expert difficulties and a floating Picture-in-Picture window that stays on top.",
+  "preview": "preview.png",
+  "main": "dist/osutify.js",
+  "readme": "README.md",
+  "authors": [
+    {
+      "name": "CrisKop",
+      "url": "https://criskop.com"
+    }
+  ],
+  "tags": ["game", "rhythm", "visual", "fun"]
+}
